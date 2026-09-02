@@ -3,10 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
+import requests
 
 app = Flask(__name__)
 
-# MySQL 연결 설정 (Docker 환경)
+# ★★★ 새로운 스키마(my_new_board_db)로 접속하도록 설정 변경 ★★★
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost:3306/my_new_board_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this'
@@ -17,18 +18,21 @@ jwt = JWTManager(app)
 
 # ----------------- Database Models -----------------
 class User(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
 
 class Post(db.Model):
+    __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(50), nullable=False, default='일반')
-    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     author = db.relationship('User', backref=db.backref('posts', lazy=True))
 
+# 앱 실행 시 새로운 스키마 내에 테이블 자동 생성
 with app.app_context():
     db.create_all()
 
@@ -65,7 +69,7 @@ def index():
 def get_posts():
     cursor = request.args.get('cursor', type=int)
     limit = request.args.get('limit', default=5, type=int)
-    search = request.args.get('search', default='', type=int if False else str)
+    search = request.args.get('search', default='', type=str)
     category = request.args.get('category', default='', type=str)
 
     query = Post.query
@@ -157,6 +161,40 @@ def delete_post(id):
     db.session.commit()
     
     return jsonify({"msg": "삭제되었습니다."})
+
+
+# ----------------- 부산 테마여행 공공 데이터 연동 엔드포인트 -----------------
+PUBLIC_API_KEY = "여기에_발급받은_디코딩_인증키를_입력하세요"
+PUBLIC_API_URL = "http://apis.data.go.kr/6260000/RecommendedService/getRecommendedKr"
+
+# 1) 외부 공공 API 데이터를 100건 받아와서 JSON으로 반환하는 백엔드 라우트
+@app.route('/api/public/posts', methods=['GET'])
+def get_public_posts():
+    params = {
+        'serviceKey': PUBLIC_API_KEY,
+        'numOfRows': '100',
+        'pageNo': '1',
+        'resultType': 'json'
+    }
+    try:
+        response = requests.get(PUBLIC_API_URL, params=params)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return jsonify({"msg": "공공 API 호출 실패", "status": response.status_code}), 500
+    except Exception as e:
+        return jsonify({"msg": "서버 통신 에러 발생", "error": str(e)}), 500
+
+# 2) 공공데이터 목록 보기 페이지 라우트
+@app.route('/public-posts')
+def public_posts_page():
+    return render_template('public_posts.html')
+
+# 3) 공공데이터 상세 보기 페이지 라우트 (UC_SEQ 기준)
+@app.route('/public-posts/<int:uc_seq>')
+def public_post_detail_page(uc_seq):
+    return render_template('public_detail.html', uc_seq=uc_seq)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
