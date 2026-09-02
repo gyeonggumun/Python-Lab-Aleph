@@ -164,7 +164,7 @@ def delete_post(id):
 
 
 # ----------------- 부산 테마여행 공공 데이터 연동 엔드포인트 -----------------
-PUBLIC_API_KEY = "CrqUjsq5asPgXLYMa4DfR%2BzU0O%2BMDH06LMl%2BeHpAVwHidi54EQhPXjy6QJVAl2SdkaEsFh0S77IXvh0VobC5pg%3D%3D"
+PUBLIC_API_KEY = "CrqUjsq5asPgXLYMa4DfR+zU0O+MDH06LMl+eHpAVwHidi54EQhPXjy6QJVAl2SdkaEsFh0S77IXvh0VobC5pg=="
 PUBLIC_API_URL = "http://apis.data.go.kr/6260000/RecommendedService/getRecommendedKr"
 
 # 1) 외부 공공 API 데이터를 100건 받아와서 JSON으로 반환하는 백엔드 라우트
