@@ -10,8 +10,8 @@ def send_alerts():
     payload = {
         "student": STUDENT_NAME,
         "alerts": [
-            {"ip": "1.2.3.114", "level": 10, "rule": "5712", "fail_count": 5},
-            {"ip": "192.168.0.10", "level": 3, "rule": "1102", "fail_count": 1}
+            {"ip": "1.22.3.114", "level": 6, "rule": "5712", "fail_count": 5},
+            {"ip": "192.168.10.10", "level": 5, "rule": "1102", "fail_count": 1}
         ]
     }
     
