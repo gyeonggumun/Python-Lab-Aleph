@@ -1,0 +1,11 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="alert alert-danger" style="padding: 40px;">
+        <h1 class="display-4">🚫 접근 권한 없음 (403)</h1>
+        <p class="lead mt-4">요청하신 페이지에 접근할 수 있는 권한(등급)이 부족합니다.</p>
+        <p>일반 유저는 골드/관리자 페이지를 열람할 수 없습니다.</p>
+        <a href="{{ url_for('page.index') }}" class="btn btn-secondary mt-3">홈으로 돌아가기</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-danger mb-4">🛠️ 관리자 전용 회원관리 페이지</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <table class="table table-hover table-bordered text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>회원 이름</th>
+                <th>현재 권한</th>
+                <th>정보 수정/삭제</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>
+                    <!-- 회원 등급 수정 폼 -->
+                    <form action="{{ url_for('page.edit_user', user_id=user.id) }}" method="POST" class="d-inline-flex align-items-center">
+                        <select name="grade" class="form-select form-select-sm" style="width: auto; margin-right: 10px;">
+                            <option value="0" {% if user.grade == 0 %}selected{% endif %}>일반 유저 (0)</option>
+                            <option value="1" {% if user.grade == 1 %}selected{% endif %}>골드 유저 (1)</option>
+                            <option value="2" {% if user.grade == 2 %}selected{% endif %}>관리자 (2)</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">변경</button>
+                    </form>
+                </td>
+                <td>
+                    <!-- 회원 삭제 폼 -->
+                    <form action="{{ url_for('page.delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ user.username }}님을 정말 삭제하시겠습니까?');">
+                        <button type="submit" class="btn btn-sm btn-danger">회원 삭제</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
