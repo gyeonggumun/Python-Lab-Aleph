@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>과제11_문경구.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> or <div class="page"></div> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h2 id="1-짧은-확인-방법">1. 짧은 확인 방법</h2>
+<ul>
+<li><strong>파일 안 어디에 있나요?</strong> 문서 상단에 메타 데이터(확인 방법, 판단 세 줄, 수정 기록, 대조표, 인과표)가 있으며, 이어서 소설 본문이 한 파일 안에 배치되어 있습니다.</li>
+<li><strong>세 단계 안에 어떤 확인을 하나요?</strong>
+<ol>
+<li><code>[[ALEPH_BODY_START]]</code>와 <code>[[ALEPH_BODY_END]]</code> 태그가 문서 내에 각각 1개씩 있는지 확인합니다.</li>
+<li>문서 상단의 대조표(5가지 범주)와 12장 구조의 장별 인과표가 본문과 일치하는지 확인합니다.</li>
+<li>전체 텍스트의 글자 수가 30,000자 이상인지 확인합니다.</li>
+</ol>
+</li>
+<li><strong>무엇이 나오면 통과인가요?</strong> 위 3가지 조건이 충족되고 일관성이 유지되면 통과입니다.</li>
+<li><strong>안 될 때는 무엇이 나오나요?</strong> 글자 수 미달이거나 파일이 2개 이상으로 나뉘어 있으면 가이드라인 위반입니다.</li>
+</ul>
+<h2 id="2-ai와-나의-판단-세-줄">2. AI와 나의 판단 세 줄</h2>
+<ul>
+<li><strong>AI에게 맡긴 일:</strong> 12장 구조의 서사 뼈대와 대조표, 인과표 등 메타 데이터를 문서 규칙에 맞게 생성하게 했습니다.</li>
+<li><strong>내가 직접 판단한 일:</strong> 단순한 기술적 오류 해결이 아니라 '사람과의 소통을 통한 이타적 성장'이 서사의 핵심 주제가 되도록 인과관계와 결말의 방향성을 직접 통제했습니다.</li>
+<li><strong>AI 제안을 따르지 않은 일:</strong> 분량을 억지로 채우기 위해 무의미한 문단을 반복하려는 제안을 배제하고, 각 장의 서사적 묘사를 직접 보완하여 구조적 완결성을 높였습니다.</li>
+</ul>
+<h2 id="3-크게-고친-세-곳">3. 크게 고친 세 곳</h2>
+<ul>
+<li><strong>첫 번째 수정 :</strong> 기술적 검색으로 문제를 단번에 해결한다는 인과를 지우고, 문제를 쪼개어 접근하는 태도의 변화로 수정했습니다. (연속 2문단 이상 재작성)</li>
+<li><strong>두 번째 수정 :</strong> 일방적으로 동료의 도움을 받는 전개에서, 서로 화면을 공유하며 상호 교차 검증을 하는 이타적 시너지로 인과와 관계를 변경했습니다.</li>
+<li><strong>세 번째 수정 :</strong> 단순한 인사 장면을 '자리 배치가 바뀐 첫날'이라는 명확한 시간선으로 연결해 설정 충돌을 풀고 일관성을 보완했습니다.</li>
+</ul>
+<h2 id="4-결말-한-문장">4. 결말 한 문장</h2>
+<p>혼자서 완벽하게 오류를 해결하려던 문경구는, 결국 주변 사람들에게 먼저 다가가 긍정적인 에너지를 나누고 함께 문제를 해결하는 엔지니어로 성장했다.</p>
+<h2 id="5-설정-대조표">5. 설정 대조표</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">범주</th>
+<th style="text-align:left">항목 (내용)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>인물</strong></td>
+<td style="text-align:left"><strong>문경구:</strong> 혼자 끙끙대던 성향에서 함께 문제를 해결하는 사람으로 성장함.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>인물</strong></td>
+<td style="text-align:left"><strong>동료 A:</strong> 바이브 코딩 및 패킷 트레이서 실습 중 막막함을 겪었으나 경구와 문제를 해결함.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>관계</strong></td>
+<td style="text-align:left"><strong>경구와 동료들:</strong> 과거에는 각자 모니터만 보았으나, 이제는 에러를 함께 들여다보는 협력 관계.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>지명</strong></td>
+<td style="text-align:left"><strong>내 방 책상 앞 / 교육장:</strong> 고립된 공간에서 협력의 공간으로 대비됨.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>시간선</strong></td>
+<td style="text-align:left"><strong>26년 5월 / 26년 8월 12일~24일:</strong> KVM 오류 좌절(5월)부터 바이브 코딩 등 협업 시기(8월).</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>세계 규칙</strong></td>
+<td style="text-align:left">거대한 문제는 잘게 쪼개고 타인과 시선을 나눌 때 반드시 해결된다.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-장별-인과표-및-목차">6. 장별 인과표 및 목차</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">장 번호</th>
+<th style="text-align:left">장 제목</th>
+<th style="text-align:left">주요 사건 (목표 및 갈등)</th>
+<th style="text-align:left">앞 장의 원인 / 뒤 장으로 넘길 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">1장</td>
+<td style="text-align:left">오류가 발생했다</td>
+<td style="text-align:left">에러 앞에서 멈춰 과거를 회상함.</td>
+<td style="text-align:left"><strong>결과:</strong> 혼자 해결하려 했던 과거로 시점 이동.</td>
+</tr>
+<tr>
+<td style="text-align:left">2장~3장</td>
+<td style="text-align:left">처음 마주한 벽 / 계속 같은 곳에서</td>
+<td style="text-align:left">GNS3 구축 중 KVM 오류 발생 후 실패 반복.</td>
+<td style="text-align:left"><strong>원인:</strong> KVM의 복잡성. <strong>결과:</strong> 심리적 좌절.</td>
+</tr>
+<tr>
+<td style="text-align:left">4장~5장</td>
+<td style="text-align:left">문제를 쪼개다 / 다시 켜진 화면</td>
+<td style="text-align:left">문제를 분할 검증하여 KVM 오류 해결.</td>
+<td style="text-align:left"><strong>결과:</strong> 완벽주의를 버려도 된다는 깨달음.</td>
+</tr>
+<tr>
+<td style="text-align:left">6장~7장</td>
+<td style="text-align:left">새로운 방식의 문제 / 혼자서는 보이지 않던 것</td>
+<td style="text-align:left">바이브 코딩 중 막히나 동료와 화면 공유.</td>
+<td style="text-align:left"><strong>원인:</strong> 새로운 기술. <strong>결과:</strong> 협업의 강력함 인지.</td>
+</tr>
+<tr>
+<td style="text-align:left">8장~9장</td>
+<td style="text-align:left">내 문제가 아니어도 / 먼저 말을 거는 사람</td>
+<td style="text-align:left">패킷 트레이서 중 동료를 돕고 먼저 다가감.</td>
+<td style="text-align:left"><strong>원인:</strong> 협업 가치 자각. <strong>결과:</strong> 이타성 실천 및 관계망 형성.</td>
+</tr>
+<tr>
+<td style="text-align:left">10~12장</td>
+<td style="text-align:left">10분 먼저 / 문제보다 먼저 보이는 것 / 같이 한번 볼까요</td>
+<td style="text-align:left">일찍 도착해 세팅하며, 타인에게 먼저 손을 내밂.</td>
+<td style="text-align:left"><strong>원인:</strong> 커진 책임감. <strong>결과:</strong> '함께하는 엔지니어'로 성장 완수.</td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>
