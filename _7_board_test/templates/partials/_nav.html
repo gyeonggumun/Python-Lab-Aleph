@@ -1,68 +1,59 @@
-{# 공통 헤더 — 데스크톱은 가로 메뉴, 모바일(md 미만)은 햄버거 메뉴 #}
-<header class="bg-white shadow-sm sticky top-0 z-20">
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="flex justify-between items-center h-16">
-
-      <!-- 로고 -->
-      <a href="/" class="text-xl font-bold text-indigo-600 shrink-0">✨ 모던 게시판</a>
-
-      <!-- 데스크톱 메뉴 (md 이상에서만 보임) -->
-      <nav class="hidden md:flex items-center space-x-1">
-        <a href="/" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition">게시판</a>
-        <a href="/dashboard" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition">보안 대시보드</a>
-        <a href="/public-posts" class="px-3 py-2 rounded-lg text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition">부산 테마여행</a>
-        <span id="auth-nav" class="flex items-center space-x-2 ml-2"></span>
-      </nav>
-
-      <!-- 햄버거 버튼 (md 미만에서만 보임) -->
-      <button id="nav-toggle" type="button"
-              class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-menu">
-        <svg id="icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-        <svg id="icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- 모바일 드롭다운 메뉴 -->
-    <nav id="mobile-menu" class="md:hidden hidden pb-3 space-y-1 border-t border-gray-100 pt-2">
-      <a href="/" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">게시판</a>
-      <a href="/dashboard" class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100">보안 대시보드</a>
-      <a href="/public-posts" class="block px-3 py-2 rounded-lg text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100">부산 테마여행</a>
-      <span id="auth-nav-mobile" class="block px-3 py-2 space-x-2"></span>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="{{ url_for('page.index') }}">카페이야기</a>
+  
+  <!-- 모바일 토글 버튼 -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <!-- 좌측 기본 메뉴 -->
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('page.index') }}">홈</a>
+      </li>
+      <!-- 연습용 게시판 등 추가 메뉴가 있다면 여기에 <li> 태그로 추가 -->
+    </ul>
+    
+    <!-- 우측 로그인 및 권한별 메뉴 -->
+    <ul class="navbar-nav ml-auto">
+        {% if current_user.is_authenticated %}
+            <!-- 1) 로그인 유저명, 권한 같이 표기 -->
+            <li class="nav-item">
+                <span class="nav-link text-info" style="font-weight: bold;">
+                    {{ current_user.username }} 
+                    ({% if current_user.grade == 2 %}관리자
+                     {% elif current_user.grade == 1 %}골드 유저
+                     {% else %}일반 유저{% endif %})
+                </span>
+            </li>
+            
+            <!-- 1) 골드 등급 링크 (골드 유저(1) 이상이면 모두 노출) -->
+            {% if current_user.grade >= 1 %}
+            <li class="nav-item">
+                <a class="nav-link text-warning font-weight-bold" href="{{ url_for('page.gold_page') }}">골드 라운지</a>
+            </li>
+            {% endif %}
+            
+            <!-- 1) 관리자 링크 (관리자(2)인 경우에만 노출) -->
+            {% if current_user.grade == 2 %}
+            <li class="nav-item">
+                <a class="nav-link text-danger font-weight-bold" href="{{ url_for('page.admin_page') }}">관리자 페이지</a>
+            </li>
+            {% endif %}
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">로그아웃</a>
+            </li>
+        {% else %}
+            <!-- 비로그인 상태일 때 -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.login') }}">로그인</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.register') }}">회원가입</a>
+            </li>
+        {% endif %}
+    </ul>
   </div>
-</header>
-
-<script>
-  // 햄버거 토글 — 아이콘 교체 + aria-expanded 갱신(접근성)
-  (function () {
-    const btn = document.getElementById('nav-toggle');
-    const menu = document.getElementById('mobile-menu');
-    const iconOpen = document.getElementById('icon-open');
-    const iconClose = document.getElementById('icon-close');
-    if (!btn || !menu) return;
-
-    btn.addEventListener('click', function () {
-      const willOpen = menu.classList.contains('hidden');
-      menu.classList.toggle('hidden', !willOpen);
-      iconOpen.classList.toggle('hidden', willOpen);
-      iconClose.classList.toggle('hidden', !willOpen);
-      btn.setAttribute('aria-expanded', String(willOpen));
-      btn.setAttribute('aria-label', willOpen ? '메뉴 닫기' : '메뉴 열기');
-    });
-
-    // 데스크톱 폭으로 넓어지면 모바일 메뉴는 닫아 둔다
-    window.addEventListener('resize', function () {
-      if (window.innerWidth >= 768 && !menu.classList.contains('hidden')) {
-        menu.classList.add('hidden');
-        iconOpen.classList.remove('hidden');
-        iconClose.classList.add('hidden');
-        btn.setAttribute('aria-expanded', 'false');
-      }
-    });
-  })();
-</script>
+</nav>

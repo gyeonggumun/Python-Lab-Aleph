@@ -1,44 +1,40 @@
-"""엔트리포인트 — 앱 팩토리(create_app) 패턴.
+from flask import Flask, render_template
+from extensions import db, login_manager
+from models.user import User
 
-구조
-  config.py       설정(.env 로딩)
-  extensions.py   db · jwt 인스턴스
-  models/         User · Post · SecurityEvent
-  controllers/    page · auth · post · security · public (블루프린트)
-  templates/      화면 (partials/_nav.html = 공통 반응형 헤더)
+# 컨트롤러(블루프린트) 임포트
+from controllers.auth_controller import auth_bp
+from controllers.page_controller import page_bp
+# from controllers.post_controller import post_bp  # (게시판 관련 컨트롤러가 있다면 이 줄의 주석을 해제하세요)
 
-실행:  python app.py   →  http://localhost:5000
-"""
-from flask import Flask
+app = Flask(__name__)
+# config.py에서 앱 설정(DB 경로, 시크릿 키 등) 불러오기
+app.config.from_pyfile('config.py')
 
-from config import Config
-from controllers import all_blueprints
-from extensions import db, jwt
+# 확장 모듈 초기화
+db.init_app(app)
+login_manager.init_app(app)
 
+# 로그인 되지 않은 사용자가 접근이 필요한 페이지를 요청할 때 리다이렉트할 엔드포인트 지정
+login_manager.login_view = 'auth.login'
 
-def create_app(config_class=Config):
-  app = Flask(__name__)
-  app.config.from_object(config_class)
+# 로그인 관리를 위한 user_loader 설정
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-  # 확장 초기화
-  db.init_app(app)
-  jwt.init_app(app)
+# 블루프린트 등록
+app.register_blueprint(auth_bp)
+app.register_blueprint(page_bp)
+# app.register_blueprint(post_bp)  # (게시판 관련 블루프린트가 있다면 이 줄의 주석을 해제하세요)
 
-  # 컨트롤러(블루프린트) 등록
-  for bp in all_blueprints:
-    app.register_blueprint(bp)
-
-  # 테이블 생성 (models 를 import 한 뒤여야 한다 — controllers 가 이미 import 함)
-  with app.app_context():
-    db.create_all()
-
-  return app
-
-
-app = create_app()
-
+# 6) 각 페이지에 접근시, 해당 등급이 아닐 경우 화면에 예외화면 출력 (403 에러 핸들러)
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template('403.html'), 403
 
 if __name__ == '__main__':
-  # host='0.0.0.0' 이면 같은 공유기의 다른 기기에서도 접속 가능.
-  # 도커 안 n8n 에서는 http://host.docker.internal:5000 으로 부른다.
-  app.run(debug=True, host='0.0.0.0', port=5000)
+    # 앱 실행 전 DB 테이블 생성
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)

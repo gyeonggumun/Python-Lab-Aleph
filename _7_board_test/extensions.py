@@ -1,10 +1,8 @@
-"""확장(Extension) 객체를 한 곳에서 만든다.
-
-app 과 분리해 두면 models·controllers 어디서든 import 해도
-순환 참조(circular import)가 생기지 않는다.
-"""
-from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 
+# 데이터베이스 객체
 db = SQLAlchemy()
-jwt = JWTManager()
+
+# 로그인 관리자 객체 추가
+login_manager = LoginManager()

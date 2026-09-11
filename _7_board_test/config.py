@@ -12,26 +12,37 @@ load_dotenv()  # .env → 환경변수 (import 시점 1회)
 
 
 class Config:
-  # ── 데이터베이스 (도커 MySQL) ──
-  SQLALCHEMY_DATABASE_URI = os.environ.get(
-      'DATABASE_URL',
-      # 기본값에는 비밀번호를 두지 않는다 — 반드시 .env 의 DATABASE_URL 을 쓴다
-      'mysql+pymysql://root:123456@localhost:3306/my_new_board_db',
-  )
-  SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # ── [추가] Flask 및 Flask-Login 세션 암호화 키 ──
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'my_super_secret_key_1234')
 
-  # ── 로그인 토큰 ──
-  JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'dev-only-change-me')
-  JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
+    # ── 데이터베이스 (도커 MySQL / SQLite) ──
+    # [수정] .env 의 SQLALCHEMY_DATABASE_URI 가 있으면 우선 사용하고, 없으면 DATABASE_URL 사용
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI') or os.environ.get(
+        'DATABASE_URL',
+        # 기본값에는 비밀번호를 두지 않는다 — 반드시 .env 의 DATABASE_URL 을 쓴다
+        'mysql+pymysql://root:123456@localhost:3306/my_new_board_db',
+    )
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-  # ── 보안 이벤트 REST (n8n 이 호출) ──
-  # 값이 비어 있으면 POST 는 항상 401 (fail-closed: 실수로 열어두지 않는다)
-  SECURITY_API_KEY = os.environ.get('SECURITY_API_KEY', '')
-  # 거부(deny) 시 게시판에 '보안' 공지글 자동 등록
-  AUTO_POST_ON_DENY = os.environ.get('AUTO_POST_ON_DENY', '0') == '1'
+    # ── 로그인 토큰 ──
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'dev-only-change-me')
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
 
-  # ── 공공데이터(부산 테마여행) ──
-  PUBLIC_API_KEY = os.environ.get('PUBLIC_API_KEY')
-  PUBLIC_API_URL = (
-      'http://apis.data.go.kr/6260000/RecommendedService/getRecommendedKr'
-  )
+    # ── 보안 이벤트 REST (n8n 이 호출) ──
+    # 값이 비어 있으면 POST 는 항상 401 (fail-closed: 실수로 열어두지 않는다)
+    SECURITY_API_KEY = os.environ.get('SECURITY_API_KEY', '')
+    # 거부(deny) 시 게시판에 '보안' 공지글 자동 등록
+    AUTO_POST_ON_DENY = os.environ.get('AUTO_POST_ON_DENY', '0') == '1'
+
+    # ── 공공데이터(부산 테마여행) ──
+    PUBLIC_API_KEY = os.environ.get('PUBLIC_API_KEY')
+    PUBLIC_API_URL = (
+        'http://apis.data.go.kr/6260000/RecommendedService/getRecommendedKr'
+    )
+
+
+# ── [추가] app.config.from_pyfile 호환용 ──
+# Config 클래스 내부의 대문자 설정값들을 모듈 전역 변수로 노출합니다.
+for _key, _value in list(Config.__dict__.items()):
+    if _key.isupper():
+        globals()[_key] = _value
