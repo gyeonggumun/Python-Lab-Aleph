@@ -1,60 +1,59 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
-from flask_login import login_user, logout_user, login_required, current_user
-from models.user import User
+"""회원가입 / 로그인 / 내 정보."""
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import create_access_token
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from extensions import db
-from functools import wraps
+from models import User
+from models.user import ROLE_LABEL
 
-auth_bp = Blueprint('auth', __name__)
+from .rbac import current_user
 
-# [추가됨] 권한 제어 데코레이터
-def requires_grade(minimum_grade):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if not current_user.is_authenticated:
-                return redirect(url_for('auth.login'))
-            
-            # 요구 등급보다 낮으면 403 Forbidden 에러 발생
-            if current_user.grade < minimum_grade:
-                abort(403)
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
+auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):
-            login_user(user)
-            return redirect(url_for('page.index')) # 메인 화면으로 이동
-        flash('로그인 실패. 아이디나 비밀번호를 확인하세요.', 'danger')
-    return render_template('login.html')
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        if User.query.filter_by(username=username).first():
-            flash('이미 존재하는 사용자입니다.', 'warning')
-            return redirect(url_for('auth.register'))
-        
-        new_user = User(username=username)
-        new_user.set_password(password)
-        # 등급은 모델에서 default=0 이므로 자동 일반유저 가입
-        
-        db.session.add(new_user)
-        db.session.commit()
-        flash('회원가입 완료! 일반 유저로 가입되었습니다.', 'success')
-        return redirect(url_for('auth.login'))
-    return render_template('register.html')
+  data = request.get_json(silent=True) or {}
+  if not data.get('username') or not data.get('password'):
+    return jsonify({'msg': 'username, password 는 필수입니다.'}), 400
+  if User.query.filter_by(username=data['username']).first():
+    return jsonify({'msg': '이미 존재하는 사용자입니다.'}), 400
 
-@auth_bp.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('로그아웃 되었습니다.', 'info')
-    return redirect(url_for('page.index'))
+  user = User(username=data['username'],
+              password=generate_password_hash(data['password']))
+  db.session.add(user)
+  db.session.commit()
+  return jsonify({'msg': '회원가입 성공'}), 201
+
+
+@auth_bp.route('/login', methods=['POST'])
+def login():
+  data = request.get_json(silent=True) or {}
+  user = User.query.filter_by(username=data.get('username')).first()
+  if not user or not check_password_hash(user.password, data.get('password', '')):
+    return jsonify({'msg': '아이디 또는 비밀번호가 잘못되었습니다.'}), 401
+
+  token = create_access_token(identity=str(user.id))
+  # role 을 함께 내려주면 화면이 곧바로 등급에 맞는 메뉴를 그릴 수 있다.
+  return jsonify(access_token=token, username=user.username,
+                 role=user.role, role_label=ROLE_LABEL.get(user.role, user.role))
+
+
+@auth_bp.route('/me', methods=['GET'])
+def me():
+  """지금 로그인한 사람이 누구이고 어떤 등급인지 — 화면의 등급 확인용.
+
+  토큰은 localStorage 에 있어서 페이지를 열 때 서버로 자동 전송되지 않는다.
+  그래서 화면 JS 가 이 API 를 불러 등급을 확인하고 예외 화면 여부를 정한다."""
+  user = current_user()
+  if user is None:
+    return jsonify({'msg': '로그인이 필요합니다.'}), 401
+  return jsonify({
+      'id': user.id,
+      'username': user.username,
+      'role': user.role,
+      'role_label': ROLE_LABEL.get(user.role, user.role),
+      'is_gold': user.is_gold,
+      'is_admin': user.is_admin,
+  })
