@@ -2,7 +2,7 @@ import requests
 import json
 
 # 상수 설정
-WEBHOOK_URL = "http://localhost:5678/webhook/dbf71751-63bc-4cdd-ab0f-52b729f353bd"
+WEBHOOK_URL = "http://localhost:5678/webhook-test/dbf71751-63bc-4cdd-ab0f-52b729f353bd"
 STUDENT_NAME = "문경구"
 DENY_THRESHOLD = 10
 
