@@ -28,7 +28,7 @@ services:
 networks:
   graylog_net:
     external: true
-    name: graylog_default # docker network ls로 확인한 실제 이름
+    name: 9_graylog_default # docker network ls로 확인한 실제 이름
 
 volumes:
   wazuh_logs:
