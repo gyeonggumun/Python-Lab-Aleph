@@ -20,9 +20,11 @@
 import argparse
 import json
 import os
+import re
 import socket
 import sys
 import urllib.request
+from datetime import datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -91,6 +93,27 @@ def send_gelf(c, user):
     s.close()
 
 
+def write_host_log(c, user):
+  """이중출력: 게시판 security.log 에 한 줄(S9 wazuh-dashboard 노출).
+
+    2026-10-11 20:30:01.123 priv_unauthorized_admin user=zz_s9 src_ip=203.0.113.190
+  밀리초(.mmm) 필수 — 없으면 Wazuh windows-date-format 프리디코더가 선점(미탐).
+  로그 인젝션 방어: 공백·개행·제어문자를 '_' 로 치환.
+  """
+  path = os.path.join(HERE, 'logs', 'security.log')
+  now = datetime.now()
+  stamp = now.strftime('%Y-%m-%d %H:%M:%S.') + f'{now.microsecond // 1000:03d}'
+  clean = lambda v, n=64: re.sub(r'[\s\x00-\x1f\x7f]+', '_', str(v or '-'))[:n] or '-'
+  line = (f"{stamp} priv_unauthorized_admin user={clean(user['username'])} "
+          f"src_ip={clean(c['src_ip'], 45)}\n")
+  try:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'a', encoding='utf-8') as f:
+      f.write(line)
+  except OSError:
+    pass
+
+
 def main():
   ap = argparse.ArgumentParser()
   ap.add_argument('--dry-run', action='store_true', help='신고 없이 위반만 출력')
@@ -118,6 +141,7 @@ def main():
       print(f"    - {u['username']} (부여자 {u.get('role_granted_by')}) [dry-run]")
       continue
     send_gelf(c, u)
+    write_host_log(c, u)   # 이중출력: Wazuh security.log (S9 대시보드)
     print(f"    - {u['username']} → Graylog 신고(rule=priv-unauthorized-admin)")
     if args.revoke:  # 대체: n8n 없이 봇이 직접 회수
       r = get_json(f"{c['board']}/api/admin/revoke", key=c['key'], method='POST',
